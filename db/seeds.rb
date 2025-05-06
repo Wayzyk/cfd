@@ -1,9 +1,48 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+User.delete_all
+Tenant.delete_all
+
+demo_tenant = Tenant.create!(
+  name: "Demo Tenant",
+  custom_fields_settings: [
+    { "key"    => "phone",
+      "label"  => "Phone number",
+      "type"   => "number",
+      "options"=> [] },
+    { "key"    => "bio",
+      "label"  => "Biography",
+      "type"   => "text",
+      "options"=> [] },
+    { "key"    => "status",
+      "label"  => "Status",
+      "type"   => "single_select",
+      "options"=> ["active", "inactive"] },
+    { "key"    => "tags",
+      "label"  => "Tags",
+      "type"   => "multi_select",
+      "options"=> ["ruby", "rails", "api"] }
+  ]
+)
+
+User.create!(
+  email: "alice@example.com",
+  tenant: demo_tenant,
+  custom_field_values: {
+    "phone"  => "+48123456789",
+    "bio"    => "Senior RoR dev",
+    "status" => "active",
+    "tags"   => ["ruby", "api"]
+  }
+)
+
+User.create!(
+  email: "bob@example.com",
+  tenant: demo_tenant,
+  custom_field_values: {
+    "phone"  => "+48111222333",
+    "bio"    => "Junior dev",
+    "status" => "inactive",
+    "tags"   => ["rails"]
+  }
+)
+
+puts "Seeded Demo Tenant (ID=#{demo_tenant.id}) with #{demo_tenant.users.count} users."
